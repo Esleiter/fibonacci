@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Fibonacci</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .result {
+            font-size: 24px;
+            color: #1a73e8;
+            margin-top: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        input[type="number"] {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #1a73e8;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0d47a1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Fibonacci</h1>
+        <div class="form-group">
+            <label for="inputNumber">Número de Fibonacci:</label>
+            <input type="number" id="inputNumber" value="77" min="0" step="1">
+            <button id="calculateButton">Calcular</button>
+        </div>
+        <p>El resultado por defecto de fib(77) es:</p>
+        <div class="result" id="fibResult"></div>
+        <br>
+        <button onclick="location.href='recursivo.html'">Árbol Recursivo</button>
+    </div>
+
+    <script>
+        function fib(n) {
+            if (n === 0) return 0;
+            if (n === 1) return 1;
+            
+            let fibPrevPrev = 0;
+            let fibPrev = 1;
+            let fibCurrent = 0;
+            
+            for (let i = 2; i <= n; i++) {
+                fibCurrent = fibPrev + fibPrevPrev;
+                fibPrevPrev = fibPrev;
+                fibPrev = fibCurrent;
+            }
+            
+            return fibCurrent;
+        }
+
+        // Mostrar el resultado por defecto al cargar la página
+        document.getElementById('fibResult').textContent = `El resultado de fib(77) es: ${fib(77)}`;
+
+        // Manejar el evento click del botón
+        document.getElementById('calculateButton').addEventListener('click', function() {
+            const inputValue = document.getElementById('inputNumber').value;
+            const number = parseInt(inputValue);
+
+            if (!isNaN(number)) {
+                const result = fib(number);
+                document.getElementById('fibResult').textContent = `El resultado de fib(${number}) es: ${result}`;
+            } else {
+                alert('Por favor, ingresa un número válido.');
+            }
+        });
+    </script>
+</body>
+</html>

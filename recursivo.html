@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secuencia de Fibonacci (Árbol Recursivo)</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+      overflow: hidden;
+    }
+
+    .node circle {
+      fill: #ffffff;
+      stroke: #cccccc;
+      stroke-width: 1.5px;
+    }
+
+    .node text {
+      font: 12px sans-serif;
+      text-anchor: middle;
+      fill: #000000;
+    }
+
+    .link {
+      fill: none;
+      stroke: #cccccc;
+      stroke-width: 1.5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="absolute top-4 left-4 z-50 bg-white border border-gray-300 p-2">
+    <button class="m-1 p-1 bg-gray-200 hover:bg-gray-300" onclick="zoomIn()">+</button>
+    <button class="m-1 p-1 bg-gray-200 hover:bg-gray-300" onclick="zoomOut()">-</button>
+    <button class="m-1 p-1 bg-gray-200 hover:bg-gray-300" onclick="resetZoom()">Reset Zoom</button>
+    <input type="text" id="newValue" class="m-1 p-1 border border-gray-300" placeholder="Número Fibonacci" value="13">
+    <button class="m-1 p-1 bg-gray-200 hover:bg-gray-300" onclick="updateTree()">Generar</button>
+    <button class="m-1 p-1 bg-gray-200 hover:bg-gray-300" onclick="location.href='index.html'">Calculo Iterativo</button>
+
+  </div>
+  <div id="svg-container" class="w-full h-full">
+    <svg id="fib-svg" class="w-full h-full"></svg>
+  </div>
+
+  <script>
+    const svgContainer = d3.select("#svg-container");
+    const svg = d3.select("#fib-svg").append("g");
+
+    const zoom = d3.zoom()
+                   .scaleExtent([0.1, 10])
+                   .on("zoom", zoomed);
+
+    d3.select("#fib-svg").call(zoom);
+
+    function zoomed(event) {
+      svg.attr("transform", event.transform);
+    }
+
+    function zoomIn() {
+      d3.select("#fib-svg").transition().duration(500).call(zoom.scaleBy, 1.2);
+    }
+
+    function zoomOut() {
+      d3.select("#fib-svg").transition().duration(500).call(zoom.scaleBy, 0.8);
+    }
+
+    zoomOut()
+
+    function resetZoom() {
+      d3.select("#fib-svg").transition().duration(500).call(zoom.transform, d3.zoomIdentity);
+    }
+
+    function fibonacci(n) {
+      if (n <= 1) {
+        return n;
+      }
+      return fibonacci(n - 1) + fibonacci(n - 2);
+    }
+
+    function generateFibonacciTreeData(n) {
+      let treeData = { value: fibonacci(n).toString(), children: [] };
+      if (n > 1) {
+        treeData.children.push(generateFibonacciTreeData(n - 1));
+        treeData.children.push(generateFibonacciTreeData(n - 2));
+      }
+      return treeData;
+    }
+
+    const treeLayout = d3.tree()
+                        .size([1200, 600])
+                        .separation((a, b) => a.parent === b.parent ? 150 : 200);
+
+    function updateTree() {
+      const newValue = parseInt(document.getElementById('newValue').value);
+      const treeData = generateFibonacciTreeData(newValue);
+
+      svg.selectAll("*").remove();
+
+      const rootNode = d3.hierarchy(treeData);
+      treeLayout.size([svgContainer.node().getBoundingClientRect().width, svgContainer.node().getBoundingClientRect().height]);
+      treeLayout(rootNode);
+
+      const links = svg.selectAll("path.link")
+                       .data(rootNode.links())
+                       .enter()
+                       .append("path")
+                       .attr("class", "link")
+                       .attr("d", d3.linkVertical()
+                                   .x(d => d.x)
+                                   .y(d => d.y));
+
+      const nodes = svg.selectAll("g.node")
+                       .data(rootNode.descendants())
+                       .enter()
+                       .append("g")
+                       .attr("class", "node")
+                       .attr("transform", d => `translate(${d.x}, ${d.y})`);
+
+      nodes.append("circle")
+           .attr("r", 20);
+
+      nodes.append("text")
+           .attr("dy", "0.31em")
+           .text(d => d.data.value);
+    }
+
+    updateTree();
+    window.addEventListener('resize', updateTree);
+  </script>
+</body>
+</html>
