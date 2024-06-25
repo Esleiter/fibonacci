@@ -79,6 +79,7 @@
     }
 
 function fibonacci(n, memo = {}) {
+function fibonacci(n, memo = {}) {
   if (n in memo) return memo[n];
   if (n <= 1) return n;
   
@@ -86,12 +87,16 @@ function fibonacci(n, memo = {}) {
   return memo[n];
 }
 
-function generateFibonacciTreeData(n, memo = {}) {
-  let treeData = { value: fibonacci(n, memo).toString(), children: [] };
+function generateFibonacciTreeData(n, treeMemo = {}, fibMemo = {}) {
+  if (n in treeMemo) return treeMemo[n];
+
+  let treeData = { value: fibonacci(n, fibMemo).toString(), children: [] };
   if (n > 1) {
-    treeData.children.push(generateFibonacciTreeData(n - 1, memo));
-    treeData.children.push(generateFibonacciTreeData(n - 2, memo));
+    treeData.children.push(generateFibonacciTreeData(n - 1, treeMemo, fibMemo));
+    treeData.children.push(generateFibonacciTreeData(n - 2, treeMemo, fibMemo));
   }
+  
+  treeMemo[n] = treeData;
   return treeData;
 }
 
